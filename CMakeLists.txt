@@ -8,7 +8,9 @@ find_package(GLEW REQUIRED)
 add_library(opengl-utils "")
 
 target_include_directories(opengl-utils PUBLIC
-    ${CMAKE_HOME_DIRECTORY}/include)
+    ${CMAKE_HOME_DIRECTORY}/include
+PRIVATE
+    ${CMAKE_HOME_DIRECTORY}/include/ogu)
 
 add_subdirectory("src")
 

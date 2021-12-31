@@ -6,6 +6,8 @@
 
 namespace ogu {
 
+void init();
+
 class buffer {
     GLuint _handle;
 

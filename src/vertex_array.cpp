@@ -1,5 +1,7 @@
 #include "opengl-utils.hpp"
 
+#include <GL/glew.h>
+
 namespace ogu {
 
 vertex_array::vertex_array() {
@@ -30,6 +32,7 @@ void vertex_array::add_binding(const attrib_binding& binding) const {
         glVertexAttribPointer(binding.location, binding.size, binding.type,
             binding.normalized ? GL_TRUE : GL_FALSE, binding.stride, (void*) binding.offset);
     }
+    glEnableVertexAttribArray(binding.location);
 }
 
 };  // namespace ogu
