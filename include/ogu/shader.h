@@ -5,33 +5,34 @@
 #include <cstdint>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "buffer.h"
 
 
 namespace ogu {
 
-class Shader {
+class shader {
 
-    friend class ShaderProgram;
+    friend class shader_program;
 
     GLuint handle;
 
 public:
 
-    enum Type {
+    enum class type {
         VERTEX = GL_VERTEX_SHADER,
         FRAGMENT = GL_FRAGMENT_SHADER
     };
 
-    Shader(const std::string& filename, Type type);
-    Shader(Shader&&);
+    shader(const std::vector<std::string>& sources, type type);
+    shader(shader&&);
 
-    ~Shader();
+    ~shader();
 
 };
 
-class ShaderProgram {
+class shader_program {
 private:
 
     GLuint handle;
@@ -41,9 +42,9 @@ private:
 
 public:
 
-    explicit ShaderProgram(const std::initializer_list<Shader>& shaders);
+    explicit shader_program(const std::initializer_list<shader>& shaders);
 
-    ~ShaderProgram();
+    ~shader_program();
 
     inline void use() const {
         glUseProgram(handle);

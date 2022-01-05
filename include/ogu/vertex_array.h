@@ -1,70 +1,57 @@
 #pragma once
 
+#include <cassert>
 #include <vector>
 
 #include "buffer.h"
 
+
 namespace ogu {
 
+struct vertex_attrib_description {
+    GLuint location;
+    GLint size;
+    GLenum type;
+    GLintptr stride;
+    GLsizeiptr offset;
 
+    bool integer, normalized;
+}; 
 
-class VertexArray {
+struct vertex_buffer_binding {
+    const buffer& buffer;
+
+    std::vector<vertex_attrib_description> attribs;
+
+    uint32_t stride;
+    bool instanced;
+};
+
+class vertex_array {
 
 public:
 
-    struct attrib {
-        uint32_t location;
-        int size;
-        enum {
-            PER_VERTEX,
-            PER_INSTANCE
-        } inputMode = PER_VERTEX;
-        enum {
-            FLOAT,
-            INT,
-            UINT
-        } type = FLOAT;
+    explicit vertex_array(const std::vector<vertex_buffer_binding>& bindings);
 
-        attrib(uint32_t location, int size, decltype(inputMode) inputMode = PER_VERTEX, decltype(type) type = FLOAT) :
-            location(location), size(size), inputMode(inputMode), type(type) { }
-    };
+    vertex_array(vertex_array&&);
 
-    VertexArray(size_t vertexBufferSize, size_t indexBufferSize, size_t instanceBufferSize);
+    ~vertex_array();
 
-    VertexArray(VertexArray&&);
+    vertex_array(const vertex_array&) = delete;
 
-    ~VertexArray();
+    vertex_array& operator=(const vertex_array&) = delete;
+    vertex_array& operator=(vertex_array&&) = delete;
 
-    void addAttribute(const attrib& attrib);
-
-    void createAttributeBindings() const;
-
-    inline const buffer& getVertexBuffer() const {
-        return vertexBuffer;
-    }
-
-    inline const buffer& getInstanceBuffer() const {
-        return instanceBuffer;
-    }
-
-    inline const buffer& getIndexBuffer() const {
-        return indexBuffer;
-    }
-
-    void enable() const;
-
-    void disable() const;
+    void bind() const;
 
 private:
 
-    GLuint handle;
-
-    std::vector<attrib> attribs;
-
-    buffer vertexBuffer;
-    buffer instanceBuffer;
-    buffer indexBuffer;
+    GLuint _handle;
 
 };
+
+inline void vertex_array::bind() const {
+    glBindVertexArray(_handle);
+}
 
 } // namespace ogu

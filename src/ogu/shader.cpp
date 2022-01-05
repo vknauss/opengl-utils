@@ -1,29 +1,20 @@
 #include "shader.h"
 
-#include <fstream>
-#include <iostream>
 #include <stdexcept>
-#include <vector>
 
 #define SHADER_PROGRAM_ERR_NO_ACTIVE_UNIFORM 0
 
 
 namespace ogu {
 
-Shader::Shader(const std::string& filename, Shader::Type type) {
-    std::ifstream fs(filename);
-    if (!fs) {
-        throw std::runtime_error("Failed to load shader file: \"" + filename + "\".");
-    }
-    std::string codeStr {std::istreambuf_iterator<char>(fs),
-                         std::istreambuf_iterator<char>()};
+shader::shader(const std::vector<std::string>& sources, shader::type type) {
+    handle = glCreateShader((GLenum) type);
 
-    if (!(handle = glCreateShader(type))) {
-        throw std::runtime_error("Failed to create shader object.");
-    }
+    std::vector<const GLchar*> codeStrings(sources.size());
+    for (auto i = 0u; i < sources.size(); ++i)
+        codeStrings[i] = sources[i].c_str();
 
-    const GLchar* code = codeStr.c_str();
-    glShaderSource(handle, 1, &code, nullptr);
+    glShaderSource(handle, sources.size(), codeStrings.data(), nullptr);
     glCompileShader(handle);
 
     GLint status;
@@ -33,16 +24,15 @@ Shader::Shader(const std::string& filename, Shader::Type type) {
         glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &infoLogLength);
         std::vector<char> infoLog(infoLogLength);
         glGetShaderInfoLog(handle, infoLogLength, nullptr, infoLog.data());
-        std::cerr << infoLog.data() << std::endl;
-        throw std::runtime_error("Shader compile failed. Source file: " + filename);
+        throw std::runtime_error(std::string("Shader compile failed. ") + infoLog.data());
     }
 }
 
-Shader::~Shader() {
+shader::~shader() {
     glDeleteShader(handle);
 }
 
-ShaderProgram::ShaderProgram(const std::initializer_list<Shader>& shaders) {
+shader_program::shader_program(const std::initializer_list<shader>& shaders) {
     handle = glCreateProgram();
     for (const auto& shader : shaders) {
         glAttachShader(handle, shader.handle);
@@ -61,18 +51,17 @@ ShaderProgram::ShaderProgram(const std::initializer_list<Shader>& shaders) {
         glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &infoLogLength);
         std::vector<char> infoLog(infoLogLength);
         glGetProgramInfoLog(handle, infoLogLength, nullptr, infoLog.data());
-        std::cerr << infoLog.data() << std::endl;
-        throw std::runtime_error("Shader program link failed.");
+        throw std::runtime_error(std::string("Shader program link failed.") + infoLog.data());
     }
 
     
 }
 
-ShaderProgram::~ShaderProgram() {
+shader_program::~shader_program() {
     glDeleteProgram(handle);
 }
 
-void ShaderProgram::addUniform(const std::string& name) {
+void shader_program::addUniform(const std::string& name) {
     GLint location = glGetUniformLocation(handle, name.c_str());
     #if SHADER_PROGRAM_ERR_NO_ACTIVE_UNIFORM == 1
     if (location == -1) throw std::runtime_error("Uniform name \"" + name + "\" is not an active uniform in the program.");
@@ -80,7 +69,7 @@ void ShaderProgram::addUniform(const std::string& name) {
     uniformLocations[name] = location;
 }
 
-void ShaderProgram::addUniformBuffer(const std::string& name) {
+void shader_program::addUniformBuffer(const std::string& name) {
     GLint index = glGetUniformBlockIndex(handle, name.c_str());
     #if SHADER_PROGRAM_ERR_NO_ACTIVE_UNIFORM == 1
     if (index == -1) throw std::runtime_error("Uniform block name \"" + name + "\" is not an active uniform block in the program.");
@@ -91,25 +80,25 @@ void ShaderProgram::addUniformBuffer(const std::string& name) {
 // Scalar types: int, unsigned int, float
 
 template<>
-void ShaderProgram::setUniform(const std::string& name, int value) const {
+void shader_program::setUniform(const std::string& name, int value) const {
     glUniform1i(uniformLocations.at(name), value);
 }
 
 template<>
-void ShaderProgram::setUniform(const std::string& name, unsigned int value) const {
+void shader_program::setUniform(const std::string& name, unsigned int value) const {
     glUniform1ui(uniformLocations.at(name), value);
 }
 
 template<>
-void ShaderProgram::setUniform(const std::string& name, float value) const {
+void shader_program::setUniform(const std::string& name, float value) const {
     glUniform1f(uniformLocations.at(name), value);
 }
 
-GLint ShaderProgram::getUniformLocation(const std::string& name) const {
+GLint shader_program::getUniformLocation(const std::string& name) const {
     return uniformLocations.at(name);
 }
 
-void ShaderProgram::bindUniformBuffer(const std::string& name, uint32_t binding, const buffer& buffer, intptr_t offset, size_t size) const {
+void shader_program::bindUniformBuffer(const std::string& name, uint32_t binding, const buffer& buffer, intptr_t offset, size_t size) const {
     glUniformBlockBinding(handle, uniformBufferIndices.at(name), binding);
     glBindBufferRange(GL_UNIFORM_BUFFER, binding, buffer.handle(), offset, size);
 }
