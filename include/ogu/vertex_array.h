@@ -19,7 +19,7 @@ struct vertex_attrib_description {
 }; 
 
 struct vertex_buffer_binding {
-    const buffer& buffer;
+    const buffer& buf;
 
     std::vector<vertex_attrib_description> attribs;
 

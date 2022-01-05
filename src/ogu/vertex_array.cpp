@@ -10,7 +10,7 @@ vertex_array::vertex_array(const std::vector<vertex_buffer_binding>& bindings) {
     bind();
 
     for (const auto& b : bindings) {
-        b.buffer.bind(GL_ARRAY_BUFFER);
+        b.buf.bind(GL_ARRAY_BUFFER);
 
         for (const auto& a : b.attribs) {
             if (a.integer) {
