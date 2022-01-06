@@ -101,13 +101,15 @@ GLint shader_program::getUniformLocation(const std::string& name) const {
 }
 
 void shader_program::bindUniformBuffer(const std::string& name, const buffer& buffer) const {
-    auto binding = uniformBufferIndices.at(name).binding;
-    glBindBufferBase(GL_UNIFORM_BUFFER, binding, buffer.handle());
+    const auto& i = uniformBufferIndices.at(name);
+    // glUniformBlockBinding(handle, i.index, i.binding);
+    glBindBufferBase(GL_UNIFORM_BUFFER, i.binding, buffer.handle());
 }
 
 void shader_program::bindUniformBuffer(const std::string& name, const buffer& buffer, intptr_t offset, size_t size) const {
-    auto binding = uniformBufferIndices.at(name).binding;
-    glBindBufferRange(GL_UNIFORM_BUFFER, binding, buffer.handle(), offset, size);
+    const auto& i = uniformBufferIndices.at(name);
+    // glUniformBlockBinding(handle, i.index, i.binding);
+    glBindBufferRange(GL_UNIFORM_BUFFER, i.binding, buffer.handle(), offset, size);
 }
 
 }  // namespace ogu
