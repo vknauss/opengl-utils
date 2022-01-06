@@ -70,11 +70,13 @@ void shader_program::addUniform(const std::string& name) {
 }
 
 void shader_program::addUniformBuffer(const std::string& name) {
-    GLint index = glGetUniformBlockIndex(handle, name.c_str());
+    auto& i = uniformBufferIndices[name];
+    i.index = glGetUniformBlockIndex(handle, name.c_str());
+    i.binding = num_ubo_bindings++;
     #if SHADER_PROGRAM_ERR_NO_ACTIVE_UNIFORM == 1
     if (index == -1) throw std::runtime_error("Uniform block name \"" + name + "\" is not an active uniform block in the program.");
     #endif
-    uniformBufferIndices[name] = index;
+    glUniformBlockBinding(handle, i.index, i.binding);
 }
 
 // Scalar types: int, unsigned int, float
@@ -98,8 +100,13 @@ GLint shader_program::getUniformLocation(const std::string& name) const {
     return uniformLocations.at(name);
 }
 
-void shader_program::bindUniformBuffer(const std::string& name, uint32_t binding, const buffer& buffer, intptr_t offset, size_t size) const {
-    glUniformBlockBinding(handle, uniformBufferIndices.at(name), binding);
+void shader_program::bindUniformBuffer(const std::string& name, const buffer& buffer) const {
+    auto binding = uniformBufferIndices.at(name).binding;
+    glBindBufferBase(GL_UNIFORM_BUFFER, binding, buffer.handle());
+}
+
+void shader_program::bindUniformBuffer(const std::string& name, const buffer& buffer, intptr_t offset, size_t size) const {
+    auto binding = uniformBufferIndices.at(name).binding;
     glBindBufferRange(GL_UNIFORM_BUFFER, binding, buffer.handle(), offset, size);
 }
 

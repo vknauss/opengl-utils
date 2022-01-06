@@ -73,6 +73,8 @@ public:
 
     void bindUniformBuffer(const std::string& name, const buffer& buffer, intptr_t offset, size_t size) const;
 
+    void bindUniformBuffer(const std::string& name, const buffer& buffer) const;
+
 };
 
 }  // namespace ogu
