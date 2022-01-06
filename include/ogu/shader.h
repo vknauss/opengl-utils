@@ -37,8 +37,15 @@ private:
 
     GLuint handle;
 
+    struct ubo_entry {
+        GLint index;
+        GLuint binding;
+    };
+
     std::unordered_map<std::string, GLint> uniformLocations;
-    std::unordered_map<std::string, GLint> uniformBufferIndices;
+    std::unordered_map<std::string, ubo_entry> uniformBufferIndices;
+
+    GLuint num_ubo_bindings = 0;
 
 public:
 
@@ -64,7 +71,7 @@ public:
 
     GLint getUniformLocation(const std::string& name) const;
 
-    void bindUniformBuffer(const std::string& name, uint32_t binding, const buffer& buffer, intptr_t offset, size_t size) const;
+    void bindUniformBuffer(const std::string& name, const buffer& buffer, intptr_t offset, size_t size) const;
 
 };
 
