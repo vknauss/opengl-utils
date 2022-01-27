@@ -17,7 +17,7 @@ vertex_array::vertex_array(const std::vector<vertex_buffer_binding>& bindings) {
                 glVertexAttribIPointer(a.location, a.size, a.type, b.stride, (void*) a.offset);
             } else {
                 glVertexAttribPointer(a.location, a.size, a.type,
-                    a.normalized? GL_TRUE : GL_FALSE, a.stride, (void*) a.offset);
+                    a.normalized? GL_TRUE : GL_FALSE, b.stride, (void*) a.offset);
             }
             if (b.instanced)
                 glVertexAttribDivisor(a.location, 1);

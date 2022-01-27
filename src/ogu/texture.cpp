@@ -1,5 +1,7 @@
 #include "texture.h"
 
+#include <cassert>
+
 #include <iostream>
 #include <stdexcept>
 #include <tuple>
@@ -203,6 +205,8 @@ static Texture::Format makeFormat(uint32_t components, Texture::ChannelFormat ch
     case Texture::FLOAT32:
         return {.components=components,.bitsPerComponent=16,.isSigned=true,.isNormalized=false,.isFloatingPoint=true,.isBGR=(bool)(extraFlags & Texture::BGR_BIT)};
     }
+    assert(0);
+    return {};
 }
 
 Texture::Texture(uint32_t width, uint32_t height, uint32_t components, Texture::ChannelFormat format, void* pPixelData, uint32_t extraFlags) :

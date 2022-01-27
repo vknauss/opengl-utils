@@ -12,10 +12,15 @@ struct vertex_attrib_description {
     GLuint location;
     GLint size;
     GLenum type;
-    GLintptr stride;
     GLsizeiptr offset;
 
     bool integer, normalized;
+
+    vertex_attrib_description(GLuint location, GLint size, GLenum type,
+        GLsizeiptr offset, bool integer = false, bool normalized = false) :
+        location(location), size(size), type(type), offset(offset),
+        integer(integer), normalized(normalized)
+    { }
 }; 
 
 struct vertex_buffer_binding {
@@ -25,6 +30,12 @@ struct vertex_buffer_binding {
 
     uint32_t stride;
     bool instanced;
+
+    vertex_buffer_binding(const buffer& buf,
+        const std::vector<vertex_attrib_description>& attribs,
+        uint32_t stride, bool instanced = false) :
+        buf(buf), attribs(attribs), stride(stride), instanced(instanced)
+    { }
 };
 
 class vertex_array {
